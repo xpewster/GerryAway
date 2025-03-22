@@ -1,0 +1,9 @@
+[package]
+name = "GerryAway"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+geojson = "0.24.2"
+priority-queue = "2.3.0"
