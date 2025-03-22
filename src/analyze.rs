@@ -2,10 +2,12 @@ use std::collections::BTreeMap;
 use geojson::{Feature, GeoJson, Geometry, Value};
 use priority_queue::PriorityQueue;
 use crate::quickhull::quick_hull;
+use crate::aspect::min_bounding_rectangle_aspect_ratio;
 
 pub fn analyze(geojson: GeoJson, propertyToFilter: &str, filter: &str) {
     let mut areas = BTreeMap::new();
     let mut qh_areas = BTreeMap::new();
+    let mut aspects = BTreeMap::new();
 
     if let GeoJson::FeatureCollection(collection) = geojson {
         
@@ -35,6 +37,7 @@ pub fn analyze(geojson: GeoJson, propertyToFilter: &str, filter: &str) {
                                 .collect();
                             areas.insert(properties["OFFICE_ID"].to_string(), area(&points));
                             qh_areas.insert(properties["OFFICE_ID"].to_string(), area(&quick_hull(&points)));
+                            aspects.insert(properties["OFFICE_ID"].to_string(), min_bounding_rectangle_aspect_ratio(&points));
                         }
                         _ => todo!()
                     }
@@ -50,7 +53,8 @@ pub fn analyze(geojson: GeoJson, propertyToFilter: &str, filter: &str) {
     for (district, area) in areas {
         println!("District: {}, Area: {}", district, area);
         println!("District: {}, QH_Area: {}", district, qh_areas[&district]);
-        if (qh_areas[&district] / area) > 1.4 {
+        println!("District: {}, Aspect: {}", district, aspects[&district]);
+        if (qh_areas[&district] / area) > 1.4 || aspects[&district] > 2.0 {
             failedDistricts.push(district.clone(), std::cmp::Reverse(district.clone()));
         } else {
             passedDistricts.push(district.clone(), std::cmp::Reverse(district.clone()));

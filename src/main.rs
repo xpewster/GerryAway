@@ -2,6 +2,7 @@ use clap::Parser;
 use geojson::{Feature, GeoJson, Geometry, Value};
 mod analyze;
 mod quickhull;
+mod aspect;
 use analyze::analyze;
 
 #[derive(Parser)]
